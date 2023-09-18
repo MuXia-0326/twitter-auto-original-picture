@@ -66,23 +66,23 @@
 	document.head.append(styleTag);
 
 	// 获取当前页面的URL
-	const currentUrl = window.location.href;
-	if (currentUrl.includes('pbs.twimg.com')) {
-		getOrig();
-	} else if (currentUrl.includes('twitter.com')) {
+	if (window.location.hostname === 'pbs.twimg.com') {
+		const newUrl = replaceImageSizeName(window.location.href);
+		if (newUrl !== window.location.href) {
+			window.location.href = newUrl;
+		}
+	} else if (window.location.hostname === 'twitter.com') {
 		addBtn();
 	}
 
-	function getOrig() {
-		if (currentUrl.includes('orig')) {
-			return;
-		}
-
+	/**
+	 * @param {string} urlString
+	 */
+	function replaceImageSizeName(urlString) {
 		// 替换name参数的值为"orig"
-		const newUrl = currentUrl.replace(/name=[^&]+/, 'name=orig');
-
-		// 如果您想重定向到修改后的URL，可以使用以下代码
-		window.location.href = newUrl;
+		const url = new URL(urlString);
+		url.searchParams.set('name', 'orig');
+		return url.toString();
 	}
 
 	function addBtn() {
@@ -116,7 +116,7 @@
 						if (!processedImages.has(imageUrl)) {
 							processedImages.add(imageUrl); // 将图片标记为已处理
 
-							const newUrl = imageUrl.replace(/name=[^&]+/, 'name=orig');
+							const newUrl = replaceImageSizeName(imageUrl);
 
 							const a = image.parentElement.parentElement.parentElement.parentElement.parentElement;
 
