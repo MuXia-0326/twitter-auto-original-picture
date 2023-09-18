@@ -136,7 +136,7 @@
 
 							// 移入事件处理程序
 							button.addEventListener('mouseenter', () => {
-								const icon = this.querySelector('.icon');
+								const icon = button.querySelector('.icon');
 
 								// 更改按钮颜色
 								icon.classList.remove('svgMoveOut');
@@ -145,7 +145,7 @@
 
 							// 移出事件处理程序
 							button.addEventListener('mouseleave', () => {
-								const icon = this.querySelector('.icon');
+								const icon = button.querySelector('.icon');
 
 								// 更改按钮颜色
 								icon.classList.remove('svgMoveIn');
