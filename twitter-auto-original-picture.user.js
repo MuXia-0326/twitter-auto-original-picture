@@ -1,7 +1,3 @@
-/*
- * @Author: MuXia
- * @Date: 2023/09/16
- */
 // ==UserScript==
 // @name         推特在新标签页打开图片自动原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
@@ -14,7 +10,7 @@
 // ==/UserScript==
 
 (function () {
-    "use strict";
+    'use strict';
 
     //载入css样式
     const css = `/* From www.lingdaima.com */
@@ -61,17 +57,17 @@
     }
     `;
 
-    const styleTag = document.createElement("style");
+    const styleTag = document.createElement('style');
     styleTag.innerText = css;
     document.head.append(styleTag);
 
     // 获取当前页面的URL
-    if (window.location.hostname === "pbs.twimg.com") {
+    if (window.location.hostname === 'pbs.twimg.com') {
         const newUrl = replaceImageSizeName(window.location.href);
         if (newUrl !== window.location.href) {
             window.location.href = newUrl;
         }
-    } else if (window.location.hostname === "twitter.com") {
+    } else if (window.location.hostname === 'twitter.com') {
         addBtn();
     }
 
@@ -81,7 +77,7 @@
     function replaceImageSizeName(urlString) {
         // 替换name参数的值为"orig"
         const url = new URL(urlString);
-        url.searchParams.set("name", "orig");
+        url.searchParams.set('name', 'orig');
         return url.toString();
     }
 
@@ -91,15 +87,19 @@
         // 创建MutationObserver来监视DOM树的变化
         const observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
+                console.log(mutation);
+                if (mutation.type !== 'childList') {
+                    continue;
+                }
                 // 检查是否有新的图片加载
                 const tweetContainers = mutation.target.querySelectorAll('div[aria-label][data-testid="tweetPhoto"]');
 
                 for (const container of tweetContainers) {
-                    const images = container.querySelectorAll("img");
+                    const images = container.querySelectorAll('img');
 
                     for (const image of images) {
-                        const imageUrl = image.getAttribute("src");
-                        const classText = image.getAttribute("class") + getRandomIntExclusive(10);
+                        const imageUrl = image.getAttribute('src');
+                        const classText = image.getAttribute('class') + getRandomIntExclusive(10);
 
                         const buttonHtml = `<div class="Btn">
                             <button id="copy-${classText}">
@@ -143,27 +143,27 @@
         // 配置MutationObserver以监视子节点添加
         const observerConfig = { childList: true, subtree: true };
 
-        let reactRoot = document.querySelector("#react-root");
+        let reactRoot = document.querySelector('#react-root');
         // 在document上启动MutationObserver
         observer.observe(reactRoot, observerConfig);
     }
 
     function appendBtn(parentElement, newUrl, buttonHtml, classText) {
         // 创建按钮元素
-        const button = document.createElement("div");
+        const button = document.createElement('div');
         button.innerHTML = buttonHtml;
 
         // 按钮点击事件处理程序
-        button.querySelector(`#copy-${classText}`).addEventListener("click", () => navigator.clipboard.writeText(newUrl));
+        button.querySelector(`#copy-${classText}`).addEventListener('click', () => navigator.clipboard.writeText(newUrl));
 
         // 发起fetch请求获取图片内容
-        button.querySelector(`#download-${classText}`).addEventListener("click", () => {
+        button.querySelector(`#download-${classText}`).addEventListener('click', () => {
             fetch(newUrl)
                 .then(function (response) {
                     if (response.ok) {
                         return response.blob(); // 以Blob形式解析响应内容
                     } else {
-                        throw new Error("下载失败");
+                        throw new Error('下载失败');
                     }
                 })
                 .then(function (imageBlob) {
@@ -172,12 +172,12 @@
 
                     const urlParams = new URL(newUrl);
                     // 创建一个下载链接
-                    var downloadLink = document.createElement("a");
+                    var downloadLink = document.createElement('a');
                     downloadLink.href = imageUrl;
                     downloadLink.download =
-                        urlParams.pathname.substring(urlParams.pathname.lastIndexOf("/") + 1) +
-                        "." +
-                        urlParams.searchParams.get("format");
+                        urlParams.pathname.substring(urlParams.pathname.lastIndexOf('/') + 1) +
+                        '.' +
+                        urlParams.searchParams.get('format');
 
                     // 模拟用户点击下载链接
                     downloadLink.click();
@@ -186,42 +186,42 @@
                     URL.revokeObjectURL(imageUrl);
                 })
                 .catch(function (error) {
-                    console.error("下载失败：", error);
+                    console.error('下载失败：', error);
                 });
         });
 
         // 移入事件处理程序
-        button.querySelector(`#copy-${classText}`).addEventListener("mouseenter", () => {
-            const icon = button.querySelector(`#copy-${classText}`).querySelector(".icon");
+        button.querySelector(`#copy-${classText}`).addEventListener('mouseenter', () => {
+            const icon = button.querySelector(`#copy-${classText}`).querySelector('.icon');
 
             // 更改按钮颜色
-            icon.classList.remove("svgMoveOut");
-            icon.classList.add("svgMoveIn");
+            icon.classList.remove('svgMoveOut');
+            icon.classList.add('svgMoveIn');
         });
         // 移出事件处理程序
-        button.querySelector(`#copy-${classText}`).addEventListener("mouseleave", () => {
-            const icon = button.querySelector(`#copy-${classText}`).querySelector(".icon");
+        button.querySelector(`#copy-${classText}`).addEventListener('mouseleave', () => {
+            const icon = button.querySelector(`#copy-${classText}`).querySelector('.icon');
 
             // 更改按钮颜色
-            icon.classList.remove("svgMoveIn");
-            icon.classList.add("svgMoveOut");
+            icon.classList.remove('svgMoveIn');
+            icon.classList.add('svgMoveOut');
         });
 
         // 移入事件处理程序
-        button.querySelector(`#download-${classText}`).addEventListener("mouseenter", () => {
-            const icon = button.querySelector(`#download-${classText}`).querySelector(".icon");
+        button.querySelector(`#download-${classText}`).addEventListener('mouseenter', () => {
+            const icon = button.querySelector(`#download-${classText}`).querySelector('.icon');
 
             // 更改按钮颜色
-            icon.classList.remove("svgMoveOut");
-            icon.classList.add("svgMoveIn");
+            icon.classList.remove('svgMoveOut');
+            icon.classList.add('svgMoveIn');
         });
         // 移出事件处理程序
-        button.querySelector(`#download-${classText}`).addEventListener("mouseleave", () => {
-            const icon = button.querySelector(`#download-${classText}`).querySelector(".icon");
+        button.querySelector(`#download-${classText}`).addEventListener('mouseleave', () => {
+            const icon = button.querySelector(`#download-${classText}`).querySelector('.icon');
 
             // 更改按钮颜色
-            icon.classList.remove("svgMoveIn");
-            icon.classList.add("svgMoveOut");
+            icon.classList.remove('svgMoveIn');
+            icon.classList.add('svgMoveOut');
         });
 
         parentElement.appendChild(button);
