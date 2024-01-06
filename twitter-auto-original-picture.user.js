@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         推特在新标签页打开图片自动原图
+// @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
 // @version      1.1
 // @description  推特在新标签页打开图片自动原图
@@ -7,6 +7,7 @@
 // @match        https://pbs.twimg.com/*
 // @match        https://twitter.com/*
 // @grant        none
+// @license      MIT
 // ==/UserScript==
 
 (function () {
