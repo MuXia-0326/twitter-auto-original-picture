@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.1
+// @version      1.2
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @match        https://pbs.twimg.com/*
@@ -73,11 +73,20 @@
     }
 
     function main() {
+        // 推文页的按钮
         let className = 'div[aria-label="图像"][data-testid="tweetPhoto"]';
 
         let temp = [...new Set(baseSelector(className))];
         for (let i = 0; i < temp.length; i++) {
             setBtn([temp[i]]);
+        }
+
+        // 图片详情页的按钮
+        let classDetailsName = 'div[data-testid="swipe-to-dismiss"] div[aria-label="图像"]';
+
+        let tempDetails = [...new Set(baseSelector(classDetailsName))];
+        for (let i = 0; i < tempDetails.length; i++) {
+            setDetailsBtn([tempDetails[i]]);
         }
     }
 
@@ -103,6 +112,23 @@
 
                 let newUrl = replaceImageSizeName(imageUrl);
                 appendBtn(parentElement, newUrl, buttonHtml, classText);
+            }
+        }
+    }
+
+    function setDetailsBtn(node) {
+        for (let container of node) {
+            console.log(container);
+            let images = container.querySelectorAll('img');
+
+            for (let image of images) {
+                let imageUrl = image.getAttribute('src');
+                let classText = image.getAttribute('class') + getRandomIntExclusive(10);
+
+                let buttonHtml = getBtnHtml(classText);
+
+                let newUrl = replaceImageSizeName(imageUrl);
+                appendBtn(container, newUrl, buttonHtml, classText);
             }
         }
     }
