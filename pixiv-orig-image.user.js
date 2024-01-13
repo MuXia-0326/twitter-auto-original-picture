@@ -195,6 +195,10 @@ let PageType = {
  */
 let Pages = {};
 
+// 测试网址
+// https://www.pixiv.net/artworks/115112051
+// https://www.pixiv.net/artworks/115063738
+
 Pages[PageType.Artwork] = {
     PageTypeString: 'ArtworkPage',
     CheckUrl: function (url) {
