@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.2
+// @version      1.3
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @match        https://pbs.twimg.com/*
@@ -15,7 +15,7 @@
 
     //载入css样式
     const css = `/* From www.lingdaima.com */
-    button {
+    .twitter-Btn {
         position: relative;
         display: inline-block;
         padding: 10px;
@@ -23,24 +23,31 @@
         font-size: 18px;
         letter-spacing: 1px;
         text-decoration: none;
-        color: rgb(29,155,240);
+        color: rgb(29, 155, 240);
         background: transparent;
         cursor: pointer;
         transition: ease-out 0.5s;
-        border-radius: 30px;
-        border: 2px solid rgb(29,155,240);
+        border: 2px solid rgb(29, 155, 240);
         border-radius: 10px;
-        box-shadow: inset 0 0 0 0 rgb(29,155,240);
+        box-shadow: inset 0 0 0 0 rgb(29, 155, 240);
     }
-
-    button:hover {
+    
+    .twitter-Btn:hover {
         color: white;
-        box-shadow: inset 0 -100px 0 0 rgb(29,155,240);
+        box-shadow: inset 0 -100px 0 0 rgb(29, 155, 240);
     }
-
-    button:active {
+    
+    .twitter-Btn:active {
         transform: scale(0.9);
     }
+    
+    .twitter-Btn:hover svg {
+        fill: white;
+    }
+    .twitter-Btn:active svg,
+    .twitter-Btn svg {
+        fill: rgb(29, 155, 240);
+    }    
 
     .Btn {
         position: absolute;
@@ -49,12 +56,6 @@
     }
     .svgClass {
         display: flex;
-    }
-    .svgMoveIn {
-        fill: #fff;
-    }
-    .svgMoveOut {
-        fill: rgb(29,155,240);
     }
     `;
 
@@ -135,17 +136,17 @@
 
     function getBtnHtml(classText) {
         const buttonHtml = `<div class="Btn">
-                <button id="copy-${classText}">
+                <button class="twitter-Btn" id="copy-${classText}">
                     <div class="svgClass">
-                        <svg t="1694962361717" class="icon svgMoveOut" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5412" width="20" height="20">
+                        <svg t="1694962361717" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5412" width="20" height="20">
                             <path d="M761.088 715.3152a38.7072 38.7072 0 0 1 0-77.4144 37.4272 37.4272 0 0 0 37.4272-37.4272V265.0112a37.4272 37.4272 0 0 0-37.4272-37.4272H425.6256a37.4272 37.4272 0 0 0-37.4272 37.4272 38.7072 38.7072 0 1 1-77.4144 0 115.0976 115.0976 0 0 1 114.8416-114.8416h335.4624a115.0976 115.0976 0 0 1 114.8416 114.8416v335.4624a115.0976 115.0976 0 0 1-114.8416 114.8416z" p-id="5413" ></path>
                             <path d="M589.4656 883.0976H268.1856a121.1392 121.1392 0 0 1-121.2928-121.2928v-322.56a121.1392 121.1392 0 0 1 121.2928-121.344h321.28a121.1392 121.1392 0 0 1 121.2928 121.2928v322.56c1.28 67.1232-54.1696 121.344-121.2928 121.344zM268.1856 395.3152a43.52 43.52 0 0 0-43.8784 43.8784v322.56a43.52 43.52 0 0 0 43.8784 43.8784h321.28a43.52 43.52 0 0 0 43.8784-43.8784v-322.56a43.52 43.52 0 0 0-43.8784-43.8784z" p-id="5414" ></path>
                         </svg>
                     </div>
                 </button>
-                <button id="download-${classText}">
+                <button class="twitter-Btn" id="download-${classText}">
                     <div class="svgClass">
-                        <svg t="1694962091616" class="icon svgMoveOut" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4129" id="mx_n_1694962091617" width="20" height="20">
+                        <svg t="1694962091616" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4129" id="mx_n_1694962091617" width="20" height="20">
                             <path d="M160 579.2a28.8 28.8 0 0 1 28.8 28.8v170.672c0 30.4 25.664 56.528 59.2 56.528h528c33.536 0 59.2-26.144 59.2-56.528V608a28.8 28.8 0 0 1 57.6 0v170.672c0 63.856-53.12 114.128-116.8 114.128h-528c-63.68 0-116.8-50.272-116.8-114.128V608a28.8 28.8 0 0 1 28.8-28.8z"  p-id="4130"></path><path d="M540.8 176l0 464a28.8 28.8 0 0 1-57.6 0L483.2 176a28.8 28.8 0 0 1 57.6 0z"  p-id="4131"></path>
                             <path d="M331.632 459.632a28.8 28.8 0 0 1 40.736 0l160 160a28.8 28.8 0 0 1-40.736 40.736l-160-160a28.8 28.8 0 0 1 0-40.736z" p-id="4132"></path><path d="M692.368 459.632a28.8 28.8 0 0 0-40.736 0l-160 160a28.8 28.8 0 0 0 40.736 40.736l160-160a28.8 28.8 0 0 0 0-40.736z" p-id="4133"></path>
                         </svg>
@@ -196,40 +197,6 @@
                 .catch(function (error) {
                     console.error('下载失败：', error);
                 });
-        });
-
-        // 移入事件处理程序
-        button.querySelector(`#copy-${classText}`).addEventListener('mouseenter', () => {
-            const icon = button.querySelector(`#copy-${classText}`).querySelector('.icon');
-
-            // 更改按钮颜色
-            icon.classList.remove('svgMoveOut');
-            icon.classList.add('svgMoveIn');
-        });
-        // 移出事件处理程序
-        button.querySelector(`#copy-${classText}`).addEventListener('mouseleave', () => {
-            const icon = button.querySelector(`#copy-${classText}`).querySelector('.icon');
-
-            // 更改按钮颜色
-            icon.classList.remove('svgMoveIn');
-            icon.classList.add('svgMoveOut');
-        });
-
-        // 移入事件处理程序
-        button.querySelector(`#download-${classText}`).addEventListener('mouseenter', () => {
-            const icon = button.querySelector(`#download-${classText}`).querySelector('.icon');
-
-            // 更改按钮颜色
-            icon.classList.remove('svgMoveOut');
-            icon.classList.add('svgMoveIn');
-        });
-        // 移出事件处理程序
-        button.querySelector(`#download-${classText}`).addEventListener('mouseleave', () => {
-            const icon = button.querySelector(`#download-${classText}`).querySelector('.icon');
-
-            // 更改按钮颜色
-            icon.classList.remove('svgMoveIn');
-            icon.classList.add('svgMoveOut');
         });
 
         parentElement.appendChild(button);
