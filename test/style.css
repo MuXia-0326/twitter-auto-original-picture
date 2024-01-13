@@ -1,0 +1,34 @@
+.twitter-Btn {
+    position: relative;
+    display: inline-block;
+    margin-right: 3px;
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: rgb(29, 155, 240);
+    background: transparent;
+    cursor: pointer;
+    transition: ease-out 0.5s;
+    border: 2px solid rgb(29, 155, 240);
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 0 rgb(29, 155, 240);
+}
+
+.twitter-Btn:hover {
+    color: white;
+    box-shadow: inset 0 -100px 0 0 rgb(29, 155, 240);
+}
+
+.twitter-Btn:active {
+    transform: scale(0.9);
+}
+
+.twitter-Btn:hover svg {
+    fill: white;
+}
+.twitter-Btn:active svg,
+.twitter-Btn svg {
+    fill: rgb(29, 155, 240);
+}
