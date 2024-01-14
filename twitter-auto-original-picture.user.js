@@ -6,12 +6,14 @@
 // @author       Mossia
 // @match        https://pbs.twimg.com/*
 // @match        https://twitter.com/*
-// @grant        none
+// @grant        GM_setClipboard
 // @license      MIT
 // ==/UserScript==
 
 (function () {
     'use strict';
+
+    const copyUpdate = false;
 
     //载入css样式
     const css = `/* From www.lingdaima.com */
@@ -88,6 +90,30 @@
         let tempDetails = [...new Set(baseSelector(classDetailsName))];
         for (let i = 0; i < tempDetails.length; i++) {
             setDetailsBtn([tempDetails[i]]);
+        }
+
+        if (copyUpdate) {
+            // 替换复制按钮的url
+            let firstChildDiv = document.querySelector('div[data-testid="Dropdown"] > div:first-child');
+            console.log(firstChildDiv);
+
+            // 确保第一个子元素是一个 div
+            if (firstChildDiv) {
+                firstChildDiv.addEventListener('click', function (e) {
+                    navigator.clipboard
+                        .readText()
+                        .then((text) => {
+                            console.log('剪贴板的内容：', text);
+                            if (text.indexOf('fixupx') === -1) {
+                                // 修改剪贴板的内容
+                                GM_setClipboard(text.replace(/x/g, 'fixupx'), 'text');
+                            }
+                        })
+                        .catch((err) => {
+                            console.log('无法读取剪贴板的内容：', err);
+                        });
+                });
+            }
         }
     }
 
