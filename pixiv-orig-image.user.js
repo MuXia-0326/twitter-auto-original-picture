@@ -14,6 +14,7 @@
 
 const css = `
 .pixiv-Btn {
+    z-index: 9999;
     position: relative;
     display: inline-block;
     margin-right: 5px;
@@ -334,7 +335,7 @@ function main() {
 }
 
 function startmain() {
-    mainInterval = setInterval(main, 1 * 1000);
+    mainInterval = setInterval(main, 1000);
 }
 
 let inChecking = false;
