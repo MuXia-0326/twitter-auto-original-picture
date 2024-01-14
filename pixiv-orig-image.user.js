@@ -4,6 +4,7 @@
 // @version      1.0
 // @description  pixiv页面生成按钮用于复制原图链接和下载原图
 // @author       Mossia
+// @icon         https://cdn.discordapp.com/attachments/651432329729933322/1196030548347461632/angri.png?ex=65b6253f&is=65a3b03f&hm=fe01601e4e89fa98821bb187bdcbe947a361923eb04e9d7e2a26b6682ec4a960&
 // @match        *://www.pixiv.net/*
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
