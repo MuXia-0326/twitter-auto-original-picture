@@ -6,6 +6,7 @@
 // @author       Mossia
 // @match        *://www.pixiv.net/*
 // @grant        unsafeWindow
+// @grant        GM_xmlhttpRequest
 // @license      MIT
 // ==/UserScript==
 
@@ -13,7 +14,8 @@ const css = `
 .pixiv-Btn {
     position: relative;
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 5px;
+    margin-top: 40px;
     padding: 10px;
     text-align: center;
     font-size: 18px;
@@ -44,8 +46,9 @@ const css = `
 
 .Btn {
     position: absolute;
-    top: 0px;
     right: 0px;
+    // bottom: 0px;
+    top: 0px;
 }
 .svgClass {
     display: flex;
@@ -222,6 +225,8 @@ Pages[PageType.Artwork] = {
 
         let pid = matched[1];
         let url = g_getArtworkUrl.replace('#id#', pid);
+
+        let original = [];
         $.ajax(url, {
             method: 'GET',
             success: function (json) {
@@ -233,7 +238,6 @@ Pages[PageType.Artwork] = {
                     return;
                 }
 
-                let original = [];
                 for (let i = 0; i < json.body.length; i++) {
                     original.push(json.body[i].urls.original);
                 }
@@ -247,24 +251,125 @@ Pages[PageType.Artwork] = {
         });
 
         //生成按钮
-        let divImage = $('main').find('figure').find('a').parent();
-        if (divImage.find('.pixiv-Btn').length > 0) {
-            return;
-        }
+        let divImages = $('main').find('figure').find('div:first-child').find('div[role="presentation"]');
+        divImages.each(function (i, e) {
+            let _this = $(e);
+            let image = _this.find('a').parent();
+            if (image.find('.pixiv-Btn').length > 0) {
+                return;
+            }
 
-        divImage.append(`
-        <button id="cp" class="pixiv-Btn Btn">
-            <div class="svgClass">
-                <svg t="1694962361717" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5412" width="20" height="20">
-                    <path d="M761.088 715.3152a38.7072 38.7072 0 0 1 0-77.4144 37.4272 37.4272 0 0 0 37.4272-37.4272V265.0112a37.4272 37.4272 0 0 0-37.4272-37.4272H425.6256a37.4272 37.4272 0 0 0-37.4272 37.4272 38.7072 38.7072 0 1 1-77.4144 0 115.0976 115.0976 0 0 1 114.8416-114.8416h335.4624a115.0976 115.0976 0 0 1 114.8416 114.8416v335.4624a115.0976 115.0976 0 0 1-114.8416 114.8416z" p-id="5413" ></path>
-                    <path d="M589.4656 883.0976H268.1856a121.1392 121.1392 0 0 1-121.2928-121.2928v-322.56a121.1392 121.1392 0 0 1 121.2928-121.344h321.28a121.1392 121.1392 0 0 1 121.2928 121.2928v322.56c1.28 67.1232-54.1696 121.344-121.2928 121.344zM268.1856 395.3152a43.52 43.52 0 0 0-43.8784 43.8784v322.56a43.52 43.52 0 0 0 43.8784 43.8784h321.28a43.52 43.52 0 0 0 43.8784-43.8784v-322.56a43.52 43.52 0 0 0-43.8784-43.8784z" p-id="5414" ></path>
-                </svg>
+            image.append(`
+            <div class="Btn">
+                <button class="pixiv-Btn" id="cp_${i}">
+                    <div class="svgClass">
+                        <svg t="1694962361717" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5412" width="20" height="20">
+                            <path d="M761.088 715.3152a38.7072 38.7072 0 0 1 0-77.4144 37.4272 37.4272 0 0 0 37.4272-37.4272V265.0112a37.4272 37.4272 0 0 0-37.4272-37.4272H425.6256a37.4272 37.4272 0 0 0-37.4272 37.4272 38.7072 38.7072 0 1 1-77.4144 0 115.0976 115.0976 0 0 1 114.8416-114.8416h335.4624a115.0976 115.0976 0 0 1 114.8416 114.8416v335.4624a115.0976 115.0976 0 0 1-114.8416 114.8416z" p-id="5413" ></path>
+                            <path d="M589.4656 883.0976H268.1856a121.1392 121.1392 0 0 1-121.2928-121.2928v-322.56a121.1392 121.1392 0 0 1 121.2928-121.344h321.28a121.1392 121.1392 0 0 1 121.2928 121.2928v322.56c1.28 67.1232-54.1696 121.344-121.2928 121.344zM268.1856 395.3152a43.52 43.52 0 0 0-43.8784 43.8784v322.56a43.52 43.52 0 0 0 43.8784 43.8784h321.28a43.52 43.52 0 0 0 43.8784-43.8784v-322.56a43.52 43.52 0 0 0-43.8784-43.8784z" p-id="5414" ></path>
+                        </svg>
+                    </div>
+                </button>
+                <button class="pixiv-Btn" id="download_${i}">
+                    <div class="svgClass">
+                        <svg t="1694962091616" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4129" id="mx_n_1694962091617" width="20" height="20">
+                            <path d="M160 579.2a28.8 28.8 0 0 1 28.8 28.8v170.672c0 30.4 25.664 56.528 59.2 56.528h528c33.536 0 59.2-26.144 59.2-56.528V608a28.8 28.8 0 0 1 57.6 0v170.672c0 63.856-53.12 114.128-116.8 114.128h-528c-63.68 0-116.8-50.272-116.8-114.128V608a28.8 28.8 0 0 1 28.8-28.8z"  p-id="4130"></path><path d="M540.8 176l0 464a28.8 28.8 0 0 1-57.6 0L483.2 176a28.8 28.8 0 0 1 57.6 0z"  p-id="4131"></path>
+                            <path d="M331.632 459.632a28.8 28.8 0 0 1 40.736 0l160 160a28.8 28.8 0 0 1-40.736 40.736l-160-160a28.8 28.8 0 0 1 0-40.736z" p-id="4132"></path><path d="M692.368 459.632a28.8 28.8 0 0 0-40.736 0l-160 160a28.8 28.8 0 0 0 40.736 40.736l160-160a28.8 28.8 0 0 0 0-40.736z" p-id="4133"></path>
+                        </svg>
+                    </div>
+                </button>
             </div>
-        </button>
-        `);
+            `);
 
-        $('#cp').click(function () {
-            alert('复制成功');
+            $(`#cp_${i}`).click(function () {
+                let newUrl = original[i].replace('https://i.pximg.net', pixiv_proxy);
+                navigator.clipboard.writeText(newUrl);
+            });
+            $(`#download_${i}`).click(function () {
+                // let newUrl = original[i].replace('https://i.pximg.net', pixiv_proxy);
+                let newUrl = original[i];
+
+                var downloadLink = document.createElement('a');
+                // downloadLink设置下载属性
+                downloadLink.download = 'aaa.jpg';
+                downloadLink.target = '_blank';
+                downloadLink.href = newUrl;
+                document.body.appendChild(downloadLink);
+
+                downloadLink.click();
+
+                document.body.removeChild(downloadLink);
+
+                // GM_xmlhttpRequest({
+                //     method: 'GET',
+                //     url: newUrl,
+                //     headers: {
+                //         Referer: 'https://www.pixiv.net/'
+                //     },
+                //     fetch: true,
+                //     onload: function (response) {
+                //         debugger;
+                //         if (response.status === 200) {
+                //             // 创建一个Blob URL，用于保存图片内容
+                //             var imageUrl = URL.createObjectURL(response.response);
+
+                //             let urlParams = new URL(newUrl);
+                //             console.log(urlParams);
+                //             // 创建一个下载链接
+                //             var downloadLink = document.createElement('a');
+                //             downloadLink.href = imageUrl;
+                //             // downloadLink.download =
+                //             //     urlParams.pathname.substring(urlParams.pathname.lastIndexOf('/') + 1) +
+                //             //     '.' +
+                //             //     urlParams.searchParams.get('format');
+
+                //             // 模拟用户点击下载链接
+                //             downloadLink.click();
+
+                //             // 释放Blob URL以节省内存
+                //             URL.revokeObjectURL(imageUrl);
+                //         } else {
+                //             throw new Error('下载失败');
+                //         }
+                //     }
+                // });
+
+                // fetch(newUrl, {
+                //     Referer: 'https://www.pixiv.net/',
+                //     mode: 'no-cors',
+                //     desc: 'image'
+                // })
+                //     .then(function (response) {
+                //         console.log(response);
+                //         if (response.ok) {
+                //             return response.blob(); // 以Blob形式解析响应内容
+                //         } else {
+                //             throw new Error('下载失败');
+                //         }
+                //     })
+                //     .then(function (imageBlob) {
+                //         // 创建一个Blob URL，用于保存图片内容
+                //         var imageUrl = URL.createObjectURL(imageBlob);
+
+                //         let urlParams = new URL(newUrl);
+                //         console.log(urlParams);
+                //         // 创建一个下载链接
+                //         var downloadLink = document.createElement('a');
+                //         downloadLink.href = imageUrl;
+                //         // downloadLink.download =
+                //         //     urlParams.pathname.substring(urlParams.pathname.lastIndexOf('/') + 1) +
+                //         //     '.' +
+                //         //     urlParams.searchParams.get('format');
+
+                //         // 模拟用户点击下载链接
+                //         downloadLink.click();
+
+                //         // 释放Blob URL以节省内存
+                //         URL.revokeObjectURL(imageUrl);
+                //     })
+                //     .catch(function (error) {
+                //         console.error('下载失败：', error);
+                //     });
+            });
         });
     }
 };
