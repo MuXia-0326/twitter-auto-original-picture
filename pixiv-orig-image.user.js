@@ -14,7 +14,7 @@
 
 const css = `
 .pixiv-Btn {
-    z-index: 9999;
+    z-index: 1000;
     position: relative;
     display: inline-block;
     margin-right: 5px;
