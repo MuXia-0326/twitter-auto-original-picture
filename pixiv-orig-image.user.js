@@ -18,7 +18,6 @@ const css = `
     position: relative;
     display: inline-block;
     margin-right: 5px;
-    margin-top: 40px;
     padding: 10px;
     text-align: center;
     font-size: 18px;
@@ -50,8 +49,7 @@ const css = `
 .Btn {
     position: absolute;
     right: 0px;
-    // bottom: 0px;
-    top: 0px;
+    bottom: 0px;
 }
 .svgClass {
     display: flex;
@@ -178,7 +176,8 @@ var checkJQuery = function () {
     });
 };
 
-let pixiv_proxy = 'https://i.pixiv.cat';
+// let pixiv_proxy = 'https://i.pixiv.cat';
+let pixiv_proxy = 'https://pixiv.mossia.xyz:10000';
 
 let g_getArtworkUrl = '/ajax/illust/#id#/pages';
 
@@ -258,12 +257,16 @@ Pages[PageType.Artwork] = {
         divImages.each(function (i, e) {
             let _this = $(e);
             let image = _this.find('a').parent();
-            if (image.find('.pixiv-Btn').length > 0) {
+            if (image.find('.Btn').length > 0 && image.find('.Btn').attr('data-pid') === pid) {
                 return;
             }
 
+            if (image.find('.Btn').length > 0) {
+                image.find('.Btn').remove();
+            }
+
             image.append(`
-            <div class="Btn">
+            <div class="Btn" data-pid=${pid}>
                 <button class="pixiv-Btn" id="cp_${i}">
                     <div class="svgClass">
                         <svg t="1694962361717" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5412" width="20" height="20">
