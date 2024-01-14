@@ -7,6 +7,7 @@
 // @match        *://www.pixiv.net/*
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
+// @grant        GM_download
 // @license      MIT
 // ==/UserScript==
 
@@ -285,90 +286,24 @@ Pages[PageType.Artwork] = {
                 navigator.clipboard.writeText(newUrl);
             });
             $(`#download_${i}`).click(function () {
-                // let newUrl = original[i].replace('https://i.pximg.net', pixiv_proxy);
                 let newUrl = original[i];
 
-                var downloadLink = document.createElement('a');
-                // downloadLink设置下载属性
-                downloadLink.download = 'aaa.jpg';
-                downloadLink.target = '_blank';
-                downloadLink.href = newUrl;
-                document.body.appendChild(downloadLink);
-
-                downloadLink.click();
-
-                document.body.removeChild(downloadLink);
-
-                // GM_xmlhttpRequest({
-                //     method: 'GET',
-                //     url: newUrl,
-                //     headers: {
-                //         Referer: 'https://www.pixiv.net/'
-                //     },
-                //     fetch: true,
-                //     onload: function (response) {
-                //         debugger;
-                //         if (response.status === 200) {
-                //             // 创建一个Blob URL，用于保存图片内容
-                //             var imageUrl = URL.createObjectURL(response.response);
-
-                //             let urlParams = new URL(newUrl);
-                //             console.log(urlParams);
-                //             // 创建一个下载链接
-                //             var downloadLink = document.createElement('a');
-                //             downloadLink.href = imageUrl;
-                //             // downloadLink.download =
-                //             //     urlParams.pathname.substring(urlParams.pathname.lastIndexOf('/') + 1) +
-                //             //     '.' +
-                //             //     urlParams.searchParams.get('format');
-
-                //             // 模拟用户点击下载链接
-                //             downloadLink.click();
-
-                //             // 释放Blob URL以节省内存
-                //             URL.revokeObjectURL(imageUrl);
-                //         } else {
-                //             throw new Error('下载失败');
-                //         }
-                //     }
-                // });
-
-                // fetch(newUrl, {
-                //     Referer: 'https://www.pixiv.net/',
-                //     mode: 'no-cors',
-                //     desc: 'image'
-                // })
-                //     .then(function (response) {
-                //         console.log(response);
-                //         if (response.ok) {
-                //             return response.blob(); // 以Blob形式解析响应内容
-                //         } else {
-                //             throw new Error('下载失败');
-                //         }
-                //     })
-                //     .then(function (imageBlob) {
-                //         // 创建一个Blob URL，用于保存图片内容
-                //         var imageUrl = URL.createObjectURL(imageBlob);
-
-                //         let urlParams = new URL(newUrl);
-                //         console.log(urlParams);
-                //         // 创建一个下载链接
-                //         var downloadLink = document.createElement('a');
-                //         downloadLink.href = imageUrl;
-                //         // downloadLink.download =
-                //         //     urlParams.pathname.substring(urlParams.pathname.lastIndexOf('/') + 1) +
-                //         //     '.' +
-                //         //     urlParams.searchParams.get('format');
-
-                //         // 模拟用户点击下载链接
-                //         downloadLink.click();
-
-                //         // 释放Blob URL以节省内存
-                //         URL.revokeObjectURL(imageUrl);
-                //     })
-                //     .catch(function (error) {
-                //         console.error('下载失败：', error);
-                //     });
+                GM_xmlhttpRequest({
+                    method: 'GET',
+                    url: newUrl,
+                    headers: {
+                        Referer: 'https://www.pixiv.net/'
+                    },
+                    responseType: 'blob', // 添加这一行
+                    onload: function (response) {
+                        if (response.status === 200) {
+                            var blobUrl = URL.createObjectURL(response.response);
+                            GM_download(blobUrl, newUrl.substring(newUrl.lastIndexOf('/') + 1));
+                        } else {
+                            console.error('Download failed:', response.statusText);
+                        }
+                    }
+                });
             });
         });
     }
