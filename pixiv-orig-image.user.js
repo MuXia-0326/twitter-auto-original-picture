@@ -233,7 +233,6 @@ Pages[PageType.Artwork] = {
             method: 'GET',
             success: function (json) {
                 iLog.i('Got artwork urls:');
-                console.log(json);
 
                 if (json.error === true) {
                     iLog.e('Server responsed an error: ' + json.message);
