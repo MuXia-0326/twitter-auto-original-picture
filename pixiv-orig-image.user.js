@@ -108,74 +108,6 @@ function ILog() {
 }
 var iLog = new ILog();
 
-var checkJQuery = function () {
-    let jqueryCdns = [
-        'http://code.jquery.com/jquery-2.1.4.min.js',
-        'https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.1.4.min.js',
-        'https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js',
-        'https://cdn.staticfile.org/jquery/2.1.4/jquery.min.js',
-        'https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'
-    ];
-    function isJQueryValid() {
-        try {
-            let wd = unsafeWindow;
-            if (wd.jQuery && !wd.$) {
-                wd.$ = wd.jQuery;
-            }
-            $();
-            return true;
-        } catch (exception) {
-            return false;
-        }
-    }
-    function insertJQuery(url) {
-        let script = document.createElement('script');
-        script.src = url;
-        document.head.appendChild(script);
-        return script;
-    }
-    function converProtocolIfNeeded(url) {
-        let isHttps = location.href.indexOf('https://') != -1;
-        let urlIsHttps = url.indexOf('https://') != -1;
-
-        if (isHttps && !urlIsHttps) {
-            return url.replace('http://', 'https://');
-        } else if (!isHttps && urlIsHttps) {
-            return url.replace('https://', 'http://');
-        }
-        return url;
-    }
-    function waitAndCheckJQuery(cdnIndex, resolve) {
-        if (cdnIndex >= jqueryCdns.length) {
-            iLog.e('无法加载 JQuery，正在退出。');
-            resolve(false);
-            return;
-        }
-        let url = converProtocolIfNeeded(jqueryCdns[cdnIndex]);
-        iLog.i('尝试第 ' + (cdnIndex + 1) + ' 个 JQuery CDN：' + url + '。');
-        let script = insertJQuery(url);
-        setTimeout(function () {
-            if (isJQueryValid()) {
-                iLog.i('已加载 JQuery。');
-                resolve(true);
-            } else {
-                iLog.w('无法访问。');
-                script.remove();
-                waitAndCheckJQuery(cdnIndex + 1, resolve);
-            }
-        }, 100);
-    }
-    return new Promise(function (resolve) {
-        if (isJQueryValid()) {
-            iLog.i('已加载 jQuery。');
-            resolve(true);
-        } else {
-            iLog.i('未发现 JQuery，尝试加载。');
-            waitAndCheckJQuery(0, resolve);
-        }
-    });
-};
-
 // let pixiv_proxy = 'https://i.pixiv.cat';
 let pixiv_proxy = 'https://pixiv.mossia.xyz:10000';
 
@@ -200,10 +132,6 @@ let PageType = {
  */
 let Pages = {};
 
-// 测试网址
-// https://www.pixiv.net/artworks/115112051
-// https://www.pixiv.net/artworks/115063738
-
 Pages[PageType.Artwork] = {
     PageTypeString: 'ArtworkPage',
     CheckUrl: function (url) {
@@ -211,12 +139,12 @@ Pages[PageType.Artwork] = {
     },
     ProcessPageElements: function () {
         // 动图不处理
-        if ($('main').find('figure').find('canvas').length > 0) {
+        if (document.querySelector('main figure canvas')) {
             return;
         }
 
-        let allImage = $('main').find('figure').parent().find('section').next('button');
-        if (allImage.length > 0) {
+        let allImage = document.querySelector('main figure').parentNode.querySelector('section + button');
+        if (allImage) {
             allImage.click();
         }
 
@@ -229,42 +157,46 @@ Pages[PageType.Artwork] = {
         let url = g_getArtworkUrl.replace('#id#', pid);
 
         let original = [];
-        $.ajax(url, {
-            method: 'GET',
-            success: function (json) {
-                iLog.i('Got artwork urls:');
-
-                if (json.error === true) {
-                    iLog.e('Server responsed an error: ' + json.message);
-                    return;
-                }
-
-                for (let i = 0; i < json.body.length; i++) {
-                    original.push(json.body[i].urls.original);
-                }
-            },
-            error: function (data) {
-                iLog.e('Request image urls failed!');
-                if (data) {
-                    iLog.e(data);
-                }
-            }
-        });
 
         //生成按钮
-        let divImages = $('main').find('figure').find('div:first-child').find('div[role="presentation"]');
-        divImages.each(function (i, e) {
-            let _this = $(e);
-            let image = _this.find('a').parent();
-            if (image.find('.Btn').length > 0 && image.find('.Btn').attr('data-pid') === pid) {
+        let divImages = document.querySelectorAll('main figure div:first-child div[role="presentation"]');
+        divImages.forEach((e, i) => {
+            let _this = e;
+            let image = _this.querySelector('a').parentNode;
+            if (image.querySelector('.Btn') && image.querySelector('.Btn').getAttribute('data-pid') === pid) {
                 return;
             }
 
-            if (image.find('.Btn').length > 0) {
-                image.find('.Btn').remove();
-            }
+            fetch(url, {
+                method: 'GET'
+            })
+                .then((response) => response.json())
+                .then((json) => {
+                    iLog.i('Got artwork urls:');
 
-            image.append(`
+                    if (json.error === true) {
+                        iLog.e('Server responsed an error: ' + json.message);
+                        return;
+                    }
+
+                    for (let i = 0; i < json.body.length; i++) {
+                        original.push(json.body[i].urls.original);
+                    }
+                })
+                .catch((error) => {
+                    iLog.e('Request image urls failed!');
+                    if (error) {
+                        iLog.e(error);
+                    }
+                });
+
+            let btns = image.querySelectorAll('.Btn');
+            if (btns.length > 0) {
+                btns.forEach((btn) => btn.remove());
+            }
+            let div = document.createElement('div');
+
+            div.innerHTML = `
             <div class="Btn" data-pid=${pid}>
                 <button class="pixiv-Btn" id="cp_${i}">
                     <div class="svgClass">
@@ -283,13 +215,16 @@ Pages[PageType.Artwork] = {
                     </div>
                 </button>
             </div>
-            `);
+            `;
 
-            $(`#cp_${i}`).click(function () {
+            image.appendChild(div);
+
+            document.getElementById(`cp_${i}`).addEventListener('click', function () {
                 let newUrl = original[i].replace('https://i.pximg.net', pixiv_proxy);
                 navigator.clipboard.writeText(newUrl);
             });
-            $(`#download_${i}`).click(function () {
+
+            document.getElementById(`download_${i}`).addEventListener('click', function () {
                 let newUrl = original[i];
 
                 GM_xmlhttpRequest({
@@ -313,8 +248,6 @@ Pages[PageType.Artwork] = {
     }
 };
 
-let mainInterval = null;
-
 function main() {
     // 匹配当前页面
     for (let i = 0; i < PageType.PageTypeCount; i++) {
@@ -336,21 +269,4 @@ function main() {
     Pages[g_pageType].ProcessPageElements();
 }
 
-function startmain() {
-    mainInterval = setInterval(main, 1000);
-}
-
-let inChecking = false;
-let jqItv = setInterval(function () {
-    if (inChecking) {
-        return;
-    }
-    inChecking = true;
-    checkJQuery().then(function (isLoad) {
-        if (isLoad) {
-            clearInterval(jqItv);
-            startmain();
-        }
-        inChecking = false;
-    });
-}, 1000);
+let mainInterval = setInterval(main, 200);
