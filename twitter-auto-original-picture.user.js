@@ -4,7 +4,7 @@
 // @version      1.4
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
-// @icon         https://cdn.discordapp.com/attachments/651432329729933322/1196030548347461632/angri.png?ex=65b6253f&is=65a3b03f&hm=fe01601e4e89fa98821bb187bdcbe947a361923eb04e9d7e2a26b6682ec4a960&
+// @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
 // @match        https://pbs.twimg.com/*
 // @match        https://twitter.com/*
 // @grant        GM_setClipboard
