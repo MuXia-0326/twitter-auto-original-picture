@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.4
+// @version      1.5
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -14,7 +14,7 @@
 (function () {
     'use strict';
 
-    const copyUpdate = false;
+    const copyUpdate = true;
 
     //载入css样式
     const css = `/* From www.lingdaima.com */
@@ -77,26 +77,15 @@
     }
 
     function main() {
-        // 推文页的按钮
-        let className = 'div[aria-label="图像"][data-testid="tweetPhoto"]';
+        tweetAdd();
+        imageDetailsAdd();
+        copy();
+    }
 
-        let temp = [...new Set(baseSelector(className))];
-        for (let i = 0; i < temp.length; i++) {
-            setBtn([temp[i]]);
-        }
-
-        // 图片详情页的按钮
-        let classDetailsName = 'div[data-testid="swipe-to-dismiss"] div[aria-label="图像"]';
-
-        let tempDetails = [...new Set(baseSelector(classDetailsName))];
-        for (let i = 0; i < tempDetails.length; i++) {
-            setDetailsBtn([tempDetails[i]]);
-        }
-
+    function copy() {
         if (copyUpdate) {
             // 替换复制按钮的url
             let firstChildDiv = document.querySelector('div[data-testid="Dropdown"] > div:first-child');
-            console.log(firstChildDiv);
 
             // 确保第一个子元素是一个 div
             if (firstChildDiv) {
@@ -104,7 +93,7 @@
                     navigator.clipboard
                         .readText()
                         .then((text) => {
-                            console.log('剪贴板的内容：', text);
+                            // console.log('剪贴板的内容：', text);
                             if (text.indexOf('fixupx') === -1) {
                                 // 修改剪贴板的内容
                                 GM_setClipboard(text.replace(/x/g, 'fixupx'), 'text');
@@ -117,16 +106,49 @@
             }
         }
     }
+    function imageDetailsAdd() {
+        // 图片详情页的按钮
+        let classDetailsName = 'div[data-testid="swipe-to-dismiss"] div[aria-label="图像"]';
 
-    function baseSelector(selector) {
-        let items = document.querySelectorAll(selector);
+        let tempDetails = [...new Set(baseSelector(document, classDetailsName))];
+        for (let i = 0; i < tempDetails.length; i++) {
+            setDetailsBtn([tempDetails[i]]);
+        }
+    }
+
+    function tweetAdd() {
+        let tweets = document.querySelectorAll('[data-testid="cellInnerDiv"]');
+
+        for (let tweet of tweets) {
+            let className = 'div[aria-label="图像"][data-testid="tweetPhoto"]';
+
+            let imageDiv = tweet.querySelector(className);
+            if (imageDiv === null) {
+                continue;
+            }
+
+            let temp = [...new Set(baseSelector(tweet, className))];
+
+            let like = tweet
+                .querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')
+                .children[3].querySelector('div')
+                .querySelector('div').children[2];
+
+            for (let i = 0; i < temp.length; i++) {
+                setBtn([temp[i]], like);
+            }
+        }
+    }
+
+    function baseSelector(parentEle, selector) {
+        let items = parentEle.querySelectorAll(selector);
         return Array.from(items).filter((item) => {
             let node = getParentByNum(item, 5).querySelectorAll('div[data-nsfw]');
             return !(node && node.length > 0);
         });
     }
 
-    function setBtn(node) {
+    function setBtn(node, like) {
         for (let container of node) {
             let images = container.querySelectorAll('img');
 
@@ -139,14 +161,14 @@
                 let parentElement = getParentByNum(image, 5);
 
                 let newUrl = replaceImageSizeName(imageUrl);
-                appendBtn(parentElement, newUrl, buttonHtml, classText);
+                appendBtn(parentElement, newUrl, buttonHtml, classText, like);
             }
         }
     }
 
     function setDetailsBtn(node) {
         for (let container of node) {
-            console.log(container);
+            // console.log(container);
             let images = container.querySelectorAll('img');
 
             for (let image of images) {
@@ -155,8 +177,13 @@
 
                 let buttonHtml = getBtnHtml(classText);
 
+                let like = getParentByNum(container, 4)
+                    .nextElementSibling.querySelector('div')
+                    .querySelector('div')
+                    .querySelector('div').children[2];
+
                 let newUrl = replaceImageSizeName(imageUrl);
-                appendBtn(container, newUrl, buttonHtml, classText);
+                appendBtn(container, newUrl, buttonHtml, classText, like);
             }
         }
     }
@@ -183,7 +210,7 @@
         return buttonHtml;
     }
 
-    function appendBtn(parentElement, newUrl, buttonHtml, classText) {
+    function appendBtn(parentElement, newUrl, buttonHtml, classText, like) {
         // 创建按钮元素
         let button = document.createElement('div');
         button.setAttribute('data-nsfw', 'x');
@@ -194,6 +221,12 @@
 
         // 发起fetch请求获取图片内容
         button.querySelector(`#download-${classText}`).addEventListener('click', () => {
+            // 点击喜欢按钮
+            let likeDiv = like.querySelector('[data-testid="like"]');
+            if (likeDiv) {
+                likeDiv.click();
+            }
+
             fetch(newUrl)
                 .then(function (response) {
                     if (response.ok) {
@@ -232,8 +265,8 @@
     function getParentByNum(element, number) {
         let ancestor = element;
         for (let i = 0; i < number; i++) {
-            if (ancestor.parentNode) {
-                ancestor = ancestor.parentNode;
+            if (ancestor.parentElement) {
+                ancestor = ancestor.parentElement;
             } else {
                 break;
             }
