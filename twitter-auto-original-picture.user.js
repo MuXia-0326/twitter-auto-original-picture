@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.5
+// @version      1.6
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -129,10 +129,22 @@
 
             let temp = [...new Set(baseSelector(tweet, className))];
 
-            let like = tweet
-                .querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')
-                .children[3].querySelector('div')
-                .querySelector('div').children[2];
+            let like = null;
+            if (tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l')) {
+                let divs = tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l');
+
+                let childCount = divs.children.length;
+                if (childCount === 3) {
+                    like = divs.children[2].children[4].querySelector('div').querySelector('div').children[2];
+                } else if (childCount === 2) {
+                    like = divs.children[1].children[1].children[3].querySelector('div').querySelector('div').children[2];
+                }
+            } else if (tweet.querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')) {
+                like = tweet
+                    .querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')
+                    .children[3].querySelector('div')
+                    .querySelector('div').children[2];
+            }
 
             for (let i = 0; i < temp.length; i++) {
                 setBtn([temp[i]], like);
