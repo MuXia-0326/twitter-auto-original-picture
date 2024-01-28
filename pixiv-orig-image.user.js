@@ -109,7 +109,7 @@ function ILog() {
 var iLog = new ILog();
 
 // let pixiv_proxy = 'https://i.pixiv.cat';
-let pixiv_proxy = 'https://pixiv.mossia.xyz:10000';
+let pixiv_proxy = 'https://pixiv.mossia.xyz';
 
 let g_getArtworkUrl = '/ajax/illust/#id#/pages';
 
