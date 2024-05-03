@@ -9,7 +9,6 @@
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @grant        GM_download
-// @grant        GM_xmlhttpRequest
 // @license      MIT
 // ==/UserScript==
 
@@ -270,6 +269,26 @@ Pages[PageType.Artwork] = {
             } else {
               console.error('Download failed:', response.statusText);
             }
+          },
+        });
+
+        GM_xmlhttpRequest({
+          method: 'POST',
+          url: 'https://api.mossia.top/pPidQueue',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: JSON.stringify({
+            pidList: [pid],
+            createBy: 'MuXIa',
+          }),
+          onload: function (response) {
+            let result = JSON.parse(response.responseText);
+            resolve(result);
+          },
+          onerror: function (error) {
+            console.error('Request failed:', error);
+            reject(error);
           },
         });
       });
