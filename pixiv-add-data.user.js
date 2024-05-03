@@ -43,8 +43,7 @@ async function addApi(json) {
       },
       data: JSON.stringify(json),
       onload: function (response) {
-        let result = JSON.parse(response.responseText);
-        resolve(result);
+        resolve(null);
       },
       onerror: function (error) {
         console.error('Request failed:', error);
@@ -91,7 +90,7 @@ async function main() {
   }
   console.log('总页数:', page);
 
-  for (let i = 2; i < page; i++) {
+  for (let i = 0; i < page; i++) {
     console.log(`开始获取第 ${i + 1} 页的收藏作品`);
     if (i > 0) {
       result = await api(bookmarks_url.replace('#page#', i * 100).replace('#userId#', userId));
