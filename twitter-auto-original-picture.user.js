@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.6
+// @version      1.7
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
 // @match        https://pbs.twimg.com/*
 // @match        https://twitter.com/*
+// @match        https://x.com/*
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
 // @license      MIT
@@ -52,7 +53,7 @@
   .twitter-Btn:active svg,
   .twitter-Btn svg {
     fill: rgb(29, 155, 240);
-  }    
+  }
 
   .Btn {
     position: absolute;
@@ -78,7 +79,7 @@
     if (newUrl !== window.location.href) {
       window.location.href = newUrl;
     }
-  } else if (window.location.hostname === 'twitter.com') {
+  } else if (window.location.hostname === 'twitter.com' || window.location.hostname === 'x.com') {
     document.js_nsfw = setInterval(main, 100);
   }
 
