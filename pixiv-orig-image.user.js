@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pixiv获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.3
+// @version      1.4
 // @description  pixiv页面生成按钮用于复制原图链接和下载原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -114,10 +114,10 @@ var iLog = new ILog();
 
 // let pixiv_proxy = 'https://i.pixiv.cat';
 let pixiv_proxy = 'https://pixiv.mossia.top';
+let g_getArtworkUrl = '/ajax/illust/#id#/pages';
 
 let share_url = '';
-
-let g_getArtworkUrl = '/ajax/illust/#id#/pages';
+let userName = '';
 
 // 当前页面类型
 let g_pageType = -1;
@@ -144,6 +144,10 @@ Pages[PageType.Artwork] = {
     return /^https:\/\/www.pixiv.net\/artworks\/.*/.test(url) || /^https:\/\/www.pixiv.net\/en\/artworks\/.*/.test(url);
   },
   ProcessPageElements: function () {
+    if (userName === '') {
+      getUserName();
+    }
+
     // 动图不处理
     if (document.querySelector('main figure canvas')) {
       return;
@@ -280,7 +284,7 @@ Pages[PageType.Artwork] = {
           },
           data: JSON.stringify({
             pidList: [pid],
-            createBy: 'MuXIa',
+            createBy: userName,
           }),
           onload: function (response) {
             let result = JSON.parse(response.responseText);
@@ -334,6 +338,14 @@ function main() {
 
   // 执行操作
   Pages[g_pageType].ProcessPageElements();
+}
+
+function getUserName() {
+  var div = document.querySelectorAll('.sc-pkfh0q-0.kYDpSN .sc-1asno00-0.feBRRY');
+  div.forEach((e, i) => {
+    userName = e.getAttribute('title');
+    console.log(userName);
+  });
 }
 
 let mainInterval = setInterval(main, 200);
