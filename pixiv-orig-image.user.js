@@ -249,7 +249,6 @@ Pages[PageType.Artwork] = {
       document.getElementById(`download_${i}`).addEventListener('click', function () {
         // 点击喜欢按钮
         let likeDiv = document.querySelector('main section section div.sc-181ts2x-3.cXSAgn');
-        console.log(likeDiv);
         if (likeDiv) {
           let a = likeDiv.querySelector('a');
           if (!a) {
@@ -288,11 +287,9 @@ Pages[PageType.Artwork] = {
           }),
           onload: function (response) {
             let result = JSON.parse(response.responseText);
-            resolve(result);
           },
           onerror: function (error) {
             console.error('Request failed:', error);
-            reject(error);
           },
         });
       });

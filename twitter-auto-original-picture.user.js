@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.7
+// @version      1.8
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -87,6 +87,38 @@
     tweetAdd();
     imageDetailsAdd();
     copy();
+    tweetAltAdd();
+  }
+
+  function tweetAltAdd() {
+    let tweets = document.querySelectorAll('[data-testid="cellInnerDiv"]');
+
+    for (let tweet of tweets) {
+      let className = 'div.css-175oi2r.r-rki7wi.r-u8s1d.r-14fd9ze';
+
+      let div = tweet.querySelector(className);
+      if (div === null) {
+        continue;
+      }
+
+      let parent = div.parentNode;
+      let links = parent.querySelector('a');
+      if (links === null) {
+        continue;
+      }
+
+      let imageDiv = links.querySelector('img.css-9pa8cd');
+      if (imageDiv === null) {
+        continue;
+      }
+
+      let temp = [...new Set(baseSelectorAlt(parent, 'img.css-9pa8cd'))];
+      let like = queryLikeBtn(tweet);
+
+      for (let i = 0; i < temp.length; i++) {
+        setAltBtn([temp[i]], like);
+      }
+    }
   }
 
   function copy() {
@@ -113,6 +145,7 @@
       }
     }
   }
+
   function imageDetailsAdd() {
     // 图片详情页的按钮
     let classDetailsName = 'div[data-testid="swipe-to-dismiss"] div[aria-label="图像"]';
@@ -135,23 +168,7 @@
       }
 
       let temp = [...new Set(baseSelector(tweet, className))];
-
-      let like = null;
-      if (tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l')) {
-        let divs = tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l');
-
-        let childCount = divs.children.length;
-        if (childCount === 3) {
-          like = divs.children[2].children[4].querySelector('div').querySelector('div').children[2];
-        } else if (childCount === 2) {
-          like = divs.children[1].children[1].children[3].querySelector('div').querySelector('div').children[2];
-        }
-      } else if (tweet.querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')) {
-        like = tweet
-          .querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')
-          .children[3].querySelector('div')
-          .querySelector('div').children[2];
-      }
+      let like = queryLikeBtn(tweet);
 
       for (let i = 0; i < temp.length; i++) {
         setBtn([temp[i]], like);
@@ -159,7 +176,36 @@
     }
   }
 
+  function queryLikeBtn(tweet) {
+    let like = null;
+    if (tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l')) {
+      let divs = tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l');
+
+      let childCount = divs.children.length;
+      if (childCount === 3) {
+        like = divs.children[2].children[4].querySelector('div').querySelector('div').children[2];
+      } else if (childCount === 2) {
+        like = divs.children[1].children[1].children[3].querySelector('div').querySelector('div').children[2];
+      }
+    } else if (tweet.querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')) {
+      like = tweet
+        .querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')
+        .children[3].querySelector('div')
+        .querySelector('div').children[2];
+    }
+
+    return like;
+  }
+
   function baseSelector(parentEle, selector) {
+    let items = parentEle.querySelectorAll(selector);
+    return Array.from(items).filter((item) => {
+      let node = getParentByNum(item, 5).querySelectorAll('div[data-nsfw]');
+      return !(node && node.length > 0);
+    });
+  }
+
+  function baseSelectorAlt(parentEle, selector) {
     let items = parentEle.querySelectorAll(selector);
     return Array.from(items).filter((item) => {
       let node = getParentByNum(item, 5).querySelectorAll('div[data-nsfw]');
@@ -182,6 +228,20 @@
         let newUrl = replaceImageSizeName(imageUrl);
         appendBtn(parentElement, newUrl, buttonHtml, classText, like);
       }
+    }
+  }
+
+  function setAltBtn(node, like) {
+    for (let images of node) {
+      let imageUrl = images.getAttribute('src');
+      let classText = images.getAttribute('class') + getRandomIntExclusive(10);
+
+      let buttonHtml = getBtnHtml(classText);
+
+      let parentElement = getParentByNum(images, 5);
+
+      let newUrl = replaceImageSizeName(imageUrl);
+      appendBtn(parentElement, newUrl, buttonHtml, classText, like);
     }
   }
 
