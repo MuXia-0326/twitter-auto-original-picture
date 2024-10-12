@@ -117,6 +117,7 @@ let pixiv_proxy = 'https://pixiv.mossia.top';
 let g_getArtworkUrl = '/ajax/illust/#id#/pages';
 
 let share_url = '';
+let share_url_two = '';
 let userName = '';
 
 // 当前页面类型
@@ -303,6 +304,21 @@ Pages[PageType.Artwork] = {
             'Content-Type': 'application/json',
           },
           data: JSON.stringify({ imageUrl: newUrl }),
+          onload: function (response) {
+            var responseData = JSON.parse(response.responseText);
+            console.log('Received response:', responseData);
+          },
+          onerror: function (error) {
+            console.error('Request failed:', error);
+          },
+        });
+        GM_xmlhttpRequest({
+          method: 'POST',
+          url: share_url_two, // 目标 URL
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: JSON.stringify({ urls: [newUrl] }),
           onload: function (response) {
             var responseData = JSON.parse(response.responseText);
             console.log('Received response:', responseData);

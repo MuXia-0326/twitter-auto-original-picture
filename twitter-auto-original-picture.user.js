@@ -18,6 +18,7 @@
 
   const copyUpdate = true;
   const share_url = '';
+  const share_url_two = '';
 
   //载入css样式
   const css = `/* From www.lingdaima.com */
@@ -350,6 +351,21 @@
           'Content-Type': 'application/json',
         },
         data: JSON.stringify({ imageUrl: newUrl }),
+        onload: function (response) {
+          var responseData = JSON.parse(response.responseText);
+          console.log('Received response:', responseData);
+        },
+        onerror: function (error) {
+          console.error('Request failed:', error);
+        },
+      });
+      GM_xmlhttpRequest({
+        method: 'POST',
+        url: share_url_two, // 目标 URL
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({ urls: [newUrl] }),
         onload: function (response) {
           var responseData = JSON.parse(response.responseText);
           console.log('Received response:', responseData);
