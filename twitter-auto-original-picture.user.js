@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.8
+// @version      1.9
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -19,6 +19,8 @@
   const copyUpdate = true;
   const share_url = '';
   const share_url_two = '';
+
+  let userName = '';
 
   //载入css样式
   const css = `/* From www.lingdaima.com */
@@ -84,11 +86,36 @@
     document.js_nsfw = setInterval(main, 100);
   }
 
+  let url = '';
+  let createDate = '';
+
   function main() {
+    if (userName === '') {
+      getUserName();
+    }
+
     tweetAdd();
     imageDetailsAdd();
     copy();
     tweetAltAdd();
+  }
+
+  function getUserName() {
+    let divs = document.querySelectorAll('button[aria-label="账号菜单"]');
+    for (let div of divs) {
+      let secondDiv = div.children[1];
+      if (secondDiv === null) {
+        continue;
+      }
+
+      let oneDiv = secondDiv.children[0].children[0];
+      let twoDiv = secondDiv.children[0].children[1];
+
+      let likeName = oneDiv.children[0].children[0].children[0].textContent;
+      let name = twoDiv.children[0].children[0].children[0].textContent;
+
+      userName = likeName + '(' + name + ')';
+    }
   }
 
   function tweetAltAdd() {
@@ -152,6 +179,7 @@
     let classDetailsName = 'div[data-testid="swipe-to-dismiss"] div[aria-label="图像"]';
 
     let tempDetails = [...new Set(baseSelector(document, classDetailsName))];
+
     for (let i = 0; i < tempDetails.length; i++) {
       setDetailsBtn([tempDetails[i]]);
     }
@@ -161,6 +189,8 @@
     let tweets = document.querySelectorAll('[data-testid="cellInnerDiv"]');
 
     for (let tweet of tweets) {
+      let time = tweet.querySelector('time');
+
       let className = 'div[aria-label="图像"][data-testid="tweetPhoto"]';
 
       let imageDiv = tweet.querySelector(className);
@@ -172,7 +202,7 @@
       let like = queryLikeBtn(tweet);
 
       for (let i = 0; i < temp.length; i++) {
-        setBtn([temp[i]], like);
+        setBtn([temp[i]], like, time);
       }
     }
   }
@@ -214,7 +244,7 @@
     });
   }
 
-  function setBtn(node, like) {
+  function setBtn(node, like, time) {
     for (let container of node) {
       let images = container.querySelectorAll('img');
 
@@ -227,7 +257,7 @@
         let parentElement = getParentByNum(image, 5);
 
         let newUrl = replaceImageSizeName(imageUrl);
-        appendBtn(parentElement, newUrl, buttonHtml, classText, like);
+        appendBtn(parentElement, newUrl, buttonHtml, classText, like, time);
       }
     }
   }
@@ -248,7 +278,6 @@
 
   function setDetailsBtn(node) {
     for (let container of node) {
-      // console.log(container);
       let images = container.querySelectorAll('img');
 
       for (let image of images) {
@@ -295,7 +324,7 @@
     return buttonHtml;
   }
 
-  function appendBtn(parentElement, newUrl, buttonHtml, classText, like) {
+  function appendBtn(parentElement, newUrl, buttonHtml, classText, like, time) {
     // 创建按钮元素
     let button = document.createElement('div');
     button.setAttribute('data-nsfw', 'x');
@@ -311,6 +340,22 @@
       if (likeDiv) {
         likeDiv.click();
       }
+
+      let url = parentElement.querySelector('a').href.replace(/\/photo\/\d+$/, '');
+
+      let date = new Date(time.getAttribute('datetime'));
+      let formattedDate =
+        date.getFullYear() +
+        '-' +
+        String(date.getMonth() + 1).padStart(2, '0') +
+        '-' + // 月份从 0 开始，需要加 1
+        String(date.getDate()).padStart(2, '0') +
+        ' ' +
+        String(date.getHours()).padStart(2, '0') +
+        ':' +
+        String(date.getMinutes()).padStart(2, '0') +
+        ':' +
+        String(date.getSeconds()).padStart(2, '0');
 
       fetch(newUrl)
         .then(function (response) {
@@ -340,6 +385,26 @@
         .catch(function (error) {
           console.error('下载失败：', error);
         });
+
+      GM_xmlhttpRequest({
+        method: 'POST',
+        url: 'https://api.mossia.top/xPicture',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({
+          url: url,
+          pictureUrl: newUrl,
+          xCreateDate: formattedDate,
+          createBy: userName,
+        }),
+        onload: function (response) {
+          let result = JSON.parse(response.responseText);
+        },
+        onerror: function (error) {
+          console.error('Request failed:', error);
+        },
+      });
     });
 
     // 发起分享图片
