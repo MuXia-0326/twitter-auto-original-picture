@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.9
+// @version      1.10
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -388,7 +388,7 @@
 
       GM_xmlhttpRequest({
         method: 'POST',
-        url: 'https://api.mossia.top/xPicture',
+        url: 'https://api.mossia.top/add/xPicture',
         headers: {
           'Content-Type': 'application/json',
         },

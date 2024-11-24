@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pixiv获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.4
+// @version      1.5
 // @description  pixiv页面生成按钮用于复制原图链接和下载原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -278,7 +278,7 @@ Pages[PageType.Artwork] = {
 
         GM_xmlhttpRequest({
           method: 'POST',
-          url: 'https://api.mossia.top/pPidQueue',
+          url: 'https://api.mossia.top/add/pPidQueue',
           headers: {
             'Content-Type': 'application/json',
           },
