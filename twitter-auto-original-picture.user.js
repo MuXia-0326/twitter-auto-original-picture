@@ -17,8 +17,8 @@
   'use strict';
 
   const copyUpdate = true;
-  const share_url = '';
-  const share_url_two = '';
+  const share_url = 'http://bot.mossia.top:3000/imageShare';
+  const share_url_two = 'https://bz.laigc.cloudns.be/send-image';
 
   let userName = '';
 
@@ -214,7 +214,11 @@
       let childCount = divs.children.length;
       if (childCount === 3) {
         let div = divs.children[2];
-        like = div.children[div.children.length - 1].querySelector('div').querySelector('div').children[2];
+        let lastNum = div.children.length - 1;
+        if (div.children[lastNum].length === undefined || div.children[lastNum].length === 0) {
+          lastNum = lastNum - 1;
+        }
+        like = div.children[lastNum].querySelector('div').querySelector('div').children[2];
       } else if (childCount === 2) {
         like = divs.children[1].children[1].children[3].querySelector('div').querySelector('div').children[2];
       }
