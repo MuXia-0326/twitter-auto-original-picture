@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.10
+// @version      1.11
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -68,7 +68,6 @@
   }
 
   .share-btn {
-    display:none;
   }
   `;
 
@@ -214,7 +213,8 @@
 
       let childCount = divs.children.length;
       if (childCount === 3) {
-        like = divs.children[2].children[4].querySelector('div').querySelector('div').children[2];
+        let div = divs.children[2];
+        like = div.children[div.children.length - 1].querySelector('div').querySelector('div').children[2];
       } else if (childCount === 2) {
         like = divs.children[1].children[1].children[3].querySelector('div').querySelector('div').children[2];
       }
