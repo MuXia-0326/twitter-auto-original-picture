@@ -17,8 +17,8 @@
   'use strict';
 
   const copyUpdate = true;
-  const share_url = 'http://bot.mossia.top:3000/imageShare';
-  const share_url_two = 'https://bz.laigc.cloudns.be/send-image';
+  const share_url = '';
+  const share_url_two = '';
 
   let userName = '';
 
