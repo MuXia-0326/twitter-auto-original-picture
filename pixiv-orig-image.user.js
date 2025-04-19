@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pixiv获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.6
+// @version      1.7
 // @description  pixiv页面生成按钮用于复制原图链接和下载原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -354,11 +354,9 @@ function main() {
 }
 
 function getUserName() {
-  var div = document.querySelectorAll('.sc-pkfh0q-0.kYDpSN .sc-1asno00-0.feBRRY');
-  div.forEach((e, i) => {
-    userName = e.getAttribute('title');
-    console.log(userName);
-  });
+  var div = document.querySelector('button.flex.gap-8.items-center.p-0.text-text3');
+  let nameDiv = div.querySelector('div.sc-f0b66801-0.klDrpf');
+  userName = nameDiv.getAttribute('title');
 }
 
 let mainInterval = setInterval(main, 200);

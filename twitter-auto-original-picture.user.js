@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.14
+// @version      1.15
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -68,6 +68,7 @@
   }
 
   .share-btn {
+    display:none;
   }
   `;
 
@@ -101,19 +102,32 @@
 
   function getUserName() {
     let divs = document.querySelectorAll('button[aria-label="账号菜单"]');
+
     for (let div of divs) {
-      let secondDiv = div.children[1];
-      if (secondDiv === null) {
-        continue;
+      if (div.children.length === 3) {
+        let secondDiv = div.children[1];
+        if (secondDiv === null) {
+          continue;
+        }
+
+        let oneDiv = secondDiv.children[0].children[0];
+        let twoDiv = secondDiv.children[0].children[1];
+
+        let likeName = oneDiv.children[0].children[0].children[0].textContent;
+        let name = twoDiv.children[0].children[0].children[0].textContent;
+
+        userName = likeName + '(' + name + ')';
+      } else if (div.children.length === 1) {
+        let oneDiv = div.children[0];
+        if (oneDiv === null) {
+          continue;
+        }
+
+        let nameDiv =
+          oneDiv.children[0].children[1].children[0].children[1].children[0].children[0].children[2].children[0].children[1]
+            .children[0];
+        userName = nameDiv.getAttribute('aria-label');
       }
-
-      let oneDiv = secondDiv.children[0].children[0];
-      let twoDiv = secondDiv.children[0].children[1];
-
-      let likeName = oneDiv.children[0].children[0].children[0].textContent;
-      let name = twoDiv.children[0].children[0].children[0].textContent;
-
-      userName = likeName + '(' + name + ')';
     }
   }
 
@@ -215,12 +229,7 @@
       if (childCount === 3) {
         let div = divs.children[2];
         let lastNum = div.children.length - 1;
-
-        if (
-          div.children[lastNum].children.length === undefined ||
-          div.children[lastNum].children.length === 0 ||
-          div.children[lastNum].children[0].getAttribute('aria-live') === 'polite'
-        ) {
+        if (div.children[lastNum].children.length === undefined || div.children[lastNum].children.length === 0) {
           lastNum = lastNum - 1;
         }
         like = div.children[lastNum].querySelector('div').querySelector('div').children[2];
