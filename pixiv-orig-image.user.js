@@ -249,7 +249,7 @@ Pages[PageType.Artwork] = {
 
       document.getElementById(`download_${i}`).addEventListener('click', function () {
         // 点击喜欢按钮
-        let likeDiv = document.querySelector('main section section div.sc-a74b10e0-3.fCOpda');
+        let likeDiv = document.querySelector('main section section div.sc-d1c020eb-3.hWgPvh');
         if (likeDiv) {
           let a = likeDiv.querySelector('a');
           if (!a) {
