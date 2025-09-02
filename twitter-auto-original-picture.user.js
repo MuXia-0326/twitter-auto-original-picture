@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.15
+// @version      1.16
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -204,7 +204,7 @@
     for (let tweet of tweets) {
       let time = tweet.querySelector('time');
 
-      let className = 'div[aria-label="图像"][data-testid="tweetPhoto"]';
+      let className = 'div[data-testid="tweetPhoto"]';
 
       let imageDiv = tweet.querySelector(className);
       if (imageDiv === null) {
