@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pixiv添加数据
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.0
+// @version      1.1
 // @description  将用户喜欢数据添加到api数据库中
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -37,7 +37,7 @@ async function addApi(json) {
   return new Promise((resolve, reject) => {
     GM_xmlhttpRequest({
       method: 'POST',
-      url: 'https://api.mossia.top/pPidQueue',
+      url: 'https://api.mossia.top/add/pPidQueue',
       headers: {
         'Content-Type': 'application/json',
       },
