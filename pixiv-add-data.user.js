@@ -101,11 +101,11 @@ async function main() {
       pidList.push(pid);
     });
 
+    let json = await getJson(pidList);
+    await addApi(json);
+
     console.log(`第 ${i + 1} 页的收藏作品获取成功`);
   }
-
-  let json = await getJson(pidList);
-  await addApi(json);
 }
 
 main();
