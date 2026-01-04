@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.16
+// @version      1.17
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -228,10 +228,7 @@
       let childCount = divs.children.length;
       if (childCount === 3) {
         let div = divs.children[2];
-        let lastNum = div.children.length - 1;
-        if (div.children[lastNum].children.length === undefined || div.children[lastNum].children.length === 0) {
-          lastNum = lastNum - 1;
-        }
+        let lastNum = 4;
         like = div.children[lastNum].querySelector('div').querySelector('div').children[2];
       } else if (childCount === 2) {
         like = divs.children[1].children[1].children[3].querySelector('div').querySelector('div').children[2];
