@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.17
+// @version      1.18
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -18,8 +18,6 @@
 
   const copyUpdate = true;
   let share_url = '';
-  let share_url_two = '';
-  let share_url_three = '';
 
   let userName = '';
 
@@ -431,41 +429,9 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        data: JSON.stringify({ imageUrl: newUrl }),
-        onload: function (response) {
-          var responseData = JSON.parse(response.responseText);
-          console.log('Received response:', responseData);
-        },
-        onerror: function (error) {
-          console.error('Request failed:', error);
-        },
-      });
-      GM_xmlhttpRequest({
-        method: 'POST',
-        url: share_url_two, // 目标 URL
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: JSON.stringify({ urls: [newUrl] }),
-        onload: function (response) {
-          var responseData = JSON.parse(response.responseText);
-          console.log('Received response:', responseData);
-        },
-        onerror: function (error) {
-          console.error('Request failed:', error);
-        },
-      });
-      GM_xmlhttpRequest({
-        method: 'POST',
-        url: share_url_three, // 目标 URL
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': '226eab41bada18cec4dc75128fb1f8db87c916dc181bd3533149c55b6c590ac0',
-        },
         data: JSON.stringify({
-          photo_url: newUrl,
-          channel_id: '-1002381668789',
-          thread_id: '2',
+          type: 1,
+          imageUrl: newUrl,
         }),
         onload: function (response) {
           var responseData = JSON.parse(response.responseText);
