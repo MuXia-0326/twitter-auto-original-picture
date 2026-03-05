@@ -10,6 +10,7 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_download
 // @license      MIT
+// @antifeature  tracking 本脚本会将您下载的图片信息（作品ID）和用户名发送到作者服务器用于个人收藏管理，不会用于其他用途
 // ==/UserScript==
 
 const css = `

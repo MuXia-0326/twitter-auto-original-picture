@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.20
+// @version      1.21
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -10,13 +10,24 @@
 // @match        https://x.com/*
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @license      MIT
+// @antifeature  tracking 本脚本会将您下载的图片信息（图片URL、推文链接、时间）和用户名发送到作者服务器用于个人收藏管理，不会用于其他用途
 // ==/UserScript==
 
 (function () {
   'use strict';
 
-  const copyUpdate = true;
+  // 配置项
+  const CONFIG_KEY = 'twitter_auto_like';
+  const CONFIG_COPY_KEY = 'twitter_copy_replace';
+  const CONFIG_SHOW_BTN_KEY = 'twitter_show_settings_btn';
+  let autoLike = GM_getValue(CONFIG_KEY, true); // 默认开启自动点赞
+  let copyReplace = GM_getValue(CONFIG_COPY_KEY, true); // 默认开启复制链接替换
+  let showSettingsBtn = GM_getValue(CONFIG_SHOW_BTN_KEY, true); // 默认显示设置按钮
+
   let share_url = '';
 
   let userName = '';
@@ -69,11 +80,271 @@
   .share-btn {
     display:none;
   }
+
+  /* 配置面板样式 */
+  .config-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+
+  .config-panel {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    min-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .config-header {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #0f1419;
+  }
+
+  .config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eff3f4;
+  }
+
+  .config-label {
+    font-size: 15px;
+    color: #0f1419;
+  }
+
+  .config-description {
+    font-size: 13px;
+    color: #536471;
+    margin-top: 4px;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: #cfd9de;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .toggle-switch.active {
+    background: rgb(29, 155, 240);
+  }
+
+  .toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+  }
+
+  .toggle-switch.active .toggle-slider {
+    transform: translateX(20px);
+  }
+
+  .config-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .config-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .config-btn-primary {
+    background: rgb(29, 155, 240);
+    color: white;
+  }
+
+  .config-btn-primary:hover {
+    background: rgb(26, 140, 216);
+  }
+
+  .config-btn-secondary {
+    background: #eff3f4;
+    color: #0f1419;
+  }
+
+  .config-btn-secondary:hover {
+    background: #d7dbdc;
+  }
+
+  /* 设置按钮样式 */
+  .settings-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    background: rgb(29, 155, 240);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .settings-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .settings-btn svg {
+    fill: white;
+  }
   `;
 
   let styleTag = document.createElement('style');
   styleTag.innerText = css;
   document.head.append(styleTag);
+
+  // 创建配置面板
+  function createConfigPanel() {
+    const modal = document.createElement('div');
+    modal.className = 'config-modal';
+    modal.innerHTML = `
+      <div class="config-panel">
+        <div class="config-header">推特获取原图 - 设置</div>
+        <div class="config-item">
+          <div>
+            <div class="config-label">下载时自动点赞</div>
+            <div class="config-description">下载图片时自动为该推文点赞</div>
+          </div>
+          <div class="toggle-switch ${autoLike ? 'active' : ''}" id="autoLikeToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="config-item">
+          <div>
+            <div class="config-label">复制链接时替换域名</div>
+            <div class="config-description">复制推文链接时将 x.com 替换为 fixupx.com</div>
+          </div>
+          <div class="toggle-switch ${copyReplace ? 'active' : ''}" id="copyReplaceToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="config-item">
+          <div>
+            <div class="config-label">显示设置按钮</div>
+            <div class="config-description">在页面左下角显示设置按钮（关闭后可通过油猴菜单打开设置）</div>
+          </div>
+          <div class="toggle-switch ${showSettingsBtn ? 'active' : ''}" id="showBtnToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="config-buttons">
+          <button class="config-btn config-btn-secondary" id="configCancel">取消</button>
+          <button class="config-btn config-btn-primary" id="configSave">保存</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // 切换自动点赞开关
+    const likeToggle = modal.querySelector('#autoLikeToggle');
+    let tempAutoLike = autoLike;
+    likeToggle.addEventListener('click', () => {
+      tempAutoLike = !tempAutoLike;
+      likeToggle.classList.toggle('active', tempAutoLike);
+    });
+
+    // 切换复制替换开关
+    const copyToggle = modal.querySelector('#copyReplaceToggle');
+    let tempCopyReplace = copyReplace;
+    copyToggle.addEventListener('click', () => {
+      tempCopyReplace = !tempCopyReplace;
+      copyToggle.classList.toggle('active', tempCopyReplace);
+    });
+
+    // 切换显示按钮开关
+    const showBtnToggle = modal.querySelector('#showBtnToggle');
+    let tempShowSettingsBtn = showSettingsBtn;
+    showBtnToggle.addEventListener('click', () => {
+      tempShowSettingsBtn = !tempShowSettingsBtn;
+      showBtnToggle.classList.toggle('active', tempShowSettingsBtn);
+    });
+
+    // 取消按钮
+    modal.querySelector('#configCancel').addEventListener('click', () => {
+      modal.remove();
+    });
+
+    // 保存按钮
+    modal.querySelector('#configSave').addEventListener('click', () => {
+      autoLike = tempAutoLike;
+      copyReplace = tempCopyReplace;
+      const oldShowSettingsBtn = showSettingsBtn;
+      showSettingsBtn = tempShowSettingsBtn;
+
+      GM_setValue(CONFIG_KEY, autoLike);
+      GM_setValue(CONFIG_COPY_KEY, copyReplace);
+      GM_setValue(CONFIG_SHOW_BTN_KEY, showSettingsBtn);
+
+      // 如果设置按钮显示状态改变，更新按钮显示
+      if (oldShowSettingsBtn !== showSettingsBtn) {
+        const existingBtn = document.querySelector('.settings-btn');
+        if (showSettingsBtn && !existingBtn) {
+          createSettingsButton();
+        } else if (!showSettingsBtn && existingBtn) {
+          existingBtn.remove();
+        }
+      }
+
+      alert('设置已保存！');
+      modal.remove();
+    });
+
+    // 点击背景关闭
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  // 创建设置按钮
+  function createSettingsButton() {
+    const settingsBtn = document.createElement('div');
+    settingsBtn.className = 'settings-btn';
+    settingsBtn.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24">
+        <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+      </svg>
+    `;
+    settingsBtn.addEventListener('click', createConfigPanel);
+    document.body.appendChild(settingsBtn);
+  }
+
+  // 注册油猴菜单命令
+  GM_registerMenuCommand('⚙️ 设置', createConfigPanel);
 
   // 获取当前页面的URL
   if (window.location.hostname === 'pbs.twimg.com') {
@@ -83,6 +354,14 @@
     }
   } else if (window.location.hostname === 'twitter.com' || window.location.hostname === 'x.com') {
     document.js_nsfw = setInterval(main, 100);
+    // 页面加载完成后根据配置决定是否添加设置按钮
+    if (showSettingsBtn) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createSettingsButton);
+      } else {
+        createSettingsButton();
+      }
+    }
   }
 
   let url = '';
@@ -170,7 +449,7 @@
   }
 
   function copy() {
-    if (copyUpdate) {
+    if (copyReplace) {
       // 替换复制按钮的url
       let firstChildDiv = document.querySelector('div[data-testid="Dropdown"] > div:first-child');
 
@@ -357,10 +636,12 @@
 
     // 发起fetch请求获取图片内容
     button.querySelector(`#download-${classText}`).addEventListener('click', () => {
-      // 点击喜欢按钮
-      let likeDiv = like.querySelector('[data-testid="like"]');
-      if (likeDiv) {
-        likeDiv.click();
+      // 根据配置决定是否自动点赞
+      if (autoLike) {
+        let likeDiv = like.querySelector('[data-testid="like"]');
+        if (likeDiv) {
+          likeDiv.click();
+        }
       }
 
       let url = parentElement.querySelector('a').href.replace(/\/photo\/\d+$/, '');

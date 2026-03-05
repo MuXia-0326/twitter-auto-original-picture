@@ -9,6 +9,7 @@
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @license      MIT
+// @antifeature  tracking 本脚本会将您的收藏作品列表（作品ID）和用户名发送到作者服务器用于个人收藏管理，不会用于其他用途
 // ==/UserScript==
 
 const user_url = 'https://www.pixiv.net/ajax/user/';
