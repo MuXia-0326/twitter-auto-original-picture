@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.22
+// @version      1.23
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -451,7 +451,7 @@
   function copy() {
     if (copyReplace) {
       // 替换复制按钮的url
-      let firstChildDiv = document.querySelector('div[data-testid="Dropdown"] > div:first-child');
+      let firstChildDiv = document.querySelector('div[data-testid="Dropdown"] > div:nth-child(2)');
 
       // 确保第一个子元素是一个 div
       if (firstChildDiv) {
