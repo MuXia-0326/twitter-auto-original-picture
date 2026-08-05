@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.23
+// @version      1.24
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -508,27 +508,21 @@
 
   function queryLikeBtn(tweet) {
     let like = null;
-    if (tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l')) {
-      let divs = tweet.querySelector('div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1ny4l3l');
 
+    if (tweet.querySelector('div.css-g5y9jx.r-j5o65s.r-rull8r.r-qklmqi')) {
+      let divs = tweet.querySelector('div.css-g5y9jx.r-j5o65s.r-rull8r.r-qklmqi');
       let childCount = divs.children.length;
-      if (childCount === 3) {
-        let div = divs.children[2];
-        let lastNum = 3;
-        like = div.children[lastNum].querySelector('div').querySelector('div').children[2];
-      } else if (childCount === 2) {
-        let div = divs.children[1].children[1];
-        if (div.children.length === 4) {
-          like = div.children[3].querySelector('div').querySelector('div').children[2];
-        } else if (div.children.length === 5) {
-          like = div.children[4].querySelector('div').querySelector('div').children[2];
+
+      if (childCount === 2) {
+        let div = divs.children[0].children[0];
+        if (div.children.length === 5) {
+          like = div.querySelector('[data-testid="like"]');
         }
       }
-    } else if (tweet.querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')) {
+    } else if (tweet.querySelector('div.css-g5y9jx.r-eqz5dr.r-16y2uox.r-1wbh5a2')) {
       like = tweet
-        .querySelector('div.css-175oi2r.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu')
-        .children[3].querySelector('div')
-        .querySelector('div').children[2];
+        .querySelector('div.css-g5y9jx.r-eqz5dr.r-16y2uox.r-1wbh5a2')
+        .children[0].children[1].children[1].querySelector('[data-testid="like"]');
     }
 
     return like;
@@ -592,8 +586,7 @@
 
         let buttonHtml = getBtnHtml(classText);
 
-        let like = getParentByNum(container, 4).nextElementSibling.querySelector('div').querySelector('div').querySelector('div')
-          .children[2];
+        let like = getParentByNum(container, 5).querySelector('[data-testid="like"]');
 
         let newUrl = replaceImageSizeName(imageUrl);
         appendBtn(container, newUrl, buttonHtml, classText, like);
@@ -643,15 +636,23 @@
     button.querySelector(`#download-${classText}`).addEventListener('click', () => {
       // 根据配置决定是否自动点赞
       if (autoLike) {
-        let likeDiv = like.querySelector('[data-testid="like"]');
-        if (likeDiv) {
-          likeDiv.click();
+        if (like) {
+          like.click();
         }
       }
 
-      let url = parentElement.querySelector('a').href.replace(/\/photo\/\d+$/, '');
+      let url = null;
+      if (parentElement.querySelector('a')) {
+        url = parentElement.querySelector('a').href.replace(/\/photo\/\d+$/, '');
+      } else {
+        let link = parentElement.querySelector('link[rel="canonical"]');
+      }
 
-      let date = new Date(time.getAttribute('datetime'));
+      let date = new Date();
+      if (time) {
+        date = new Date(time.getAttribute('datetime'));
+      }
+
       let formattedDate =
         date.getFullYear() +
         '-' +
