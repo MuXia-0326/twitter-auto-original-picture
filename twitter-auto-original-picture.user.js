@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.24
+// @version      1.25
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -375,7 +375,6 @@
     tweetAdd();
     imageDetailsAdd();
     copy();
-    tweetAltAdd();
   }
 
   function getUserName() {
@@ -413,37 +412,6 @@
           oneDiv.children[0].children[1].children[0].children[1].children[0].children[0].children[2].children[0].children[1]
             .children[0];
         userName = nameDiv.getAttribute('aria-label');
-      }
-    }
-  }
-
-  function tweetAltAdd() {
-    let tweets = document.querySelectorAll('[data-testid="cellInnerDiv"]');
-
-    for (let tweet of tweets) {
-      let className = 'div.css-175oi2r.r-rki7wi.r-u8s1d.r-14fd9ze';
-
-      let div = tweet.querySelector(className);
-      if (div === null) {
-        continue;
-      }
-
-      let parent = div.parentNode;
-      let links = parent.querySelector('a');
-      if (links === null) {
-        continue;
-      }
-
-      let imageDiv = links.querySelector('img.css-9pa8cd');
-      if (imageDiv === null) {
-        continue;
-      }
-
-      let temp = [...new Set(baseSelectorAlt(parent, 'img.css-9pa8cd'))];
-      let like = queryLikeBtn(tweet);
-
-      for (let i = 0; i < temp.length; i++) {
-        setAltBtn([temp[i]], like);
       }
     }
   }
@@ -513,11 +481,9 @@
       let divs = tweet.querySelector('div.css-g5y9jx.r-j5o65s.r-rull8r.r-qklmqi');
       let childCount = divs.children.length;
 
-      if (childCount === 2) {
-        let div = divs.children[0].children[0];
-        if (div.children.length === 5) {
-          like = div.querySelector('[data-testid="like"]');
-        }
+      let div = divs.children[0].children[0];
+      if (div.children.length === 5) {
+        like = div.querySelector('[data-testid="like"]');
       }
     } else if (tweet.querySelector('div.css-g5y9jx.r-eqz5dr.r-16y2uox.r-1wbh5a2')) {
       like = tweet
@@ -529,14 +495,6 @@
   }
 
   function baseSelector(parentEle, selector) {
-    let items = parentEle.querySelectorAll(selector);
-    return Array.from(items).filter((item) => {
-      let node = getParentByNum(item, 5).querySelectorAll('div[data-nsfw]');
-      return !(node && node.length > 0);
-    });
-  }
-
-  function baseSelectorAlt(parentEle, selector) {
     let items = parentEle.querySelectorAll(selector);
     return Array.from(items).filter((item) => {
       let node = getParentByNum(item, 5).querySelectorAll('div[data-nsfw]');
@@ -559,20 +517,6 @@
         let newUrl = replaceImageSizeName(imageUrl);
         appendBtn(parentElement, newUrl, buttonHtml, classText, like, time);
       }
-    }
-  }
-
-  function setAltBtn(node, like) {
-    for (let images of node) {
-      let imageUrl = images.getAttribute('src');
-      let classText = images.getAttribute('class') + getRandomIntExclusive(10);
-
-      let buttonHtml = getBtnHtml(classText);
-
-      let parentElement = getParentByNum(images, 5);
-
-      let newUrl = replaceImageSizeName(imageUrl);
-      appendBtn(parentElement, newUrl, buttonHtml, classText, like);
     }
   }
 
