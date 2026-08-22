@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.25
+// @version      1.26
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -485,6 +485,15 @@
       if (div.children.length === 5) {
         like = div.querySelector('[data-testid="like"]');
       }
+    } else if (
+      tweet.querySelector(
+        'div.css-g5y9jx.r-1kbdv8c.r-18u37iz.r-1oszu61.r-3qxfft.r-n7gxbd.r-1dgieki.r-1efd50x.r-5kkj8d.r-h3s6tt.r-1wtj0ep',
+      )
+    ) {
+      let divs = tweet.querySelector(
+        'div.css-g5y9jx.r-1kbdv8c.r-18u37iz.r-1oszu61.r-3qxfft.r-n7gxbd.r-1dgieki.r-1efd50x.r-5kkj8d.r-h3s6tt.r-1wtj0ep',
+      );
+      like = divs.querySelector('[data-testid="like"]');
     } else if (tweet.querySelector('div.css-g5y9jx.r-eqz5dr.r-16y2uox.r-1wbh5a2')) {
       like = tweet
         .querySelector('div.css-g5y9jx.r-eqz5dr.r-16y2uox.r-1wbh5a2')
