@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         推特获取原图
 // @namespace    https://github.com/MuXia-0326/twitter-auto-original-picture
-// @version      1.26
+// @version      1.27
 // @description  推特在新标签页打开图片自动原图
 // @author       Mossia
 // @icon         https://raw.githubusercontent.com/MuXia-0326/drawio/master/angri.png
@@ -477,15 +477,7 @@
   function queryLikeBtn(tweet) {
     let like = null;
 
-    if (tweet.querySelector('div.css-g5y9jx.r-j5o65s.r-rull8r.r-qklmqi')) {
-      let divs = tweet.querySelector('div.css-g5y9jx.r-j5o65s.r-rull8r.r-qklmqi');
-      let childCount = divs.children.length;
-
-      let div = divs.children[0].children[0];
-      if (div.children.length === 5) {
-        like = div.querySelector('[data-testid="like"]');
-      }
-    } else if (
+    if (
       tweet.querySelector(
         'div.css-g5y9jx.r-1kbdv8c.r-18u37iz.r-1oszu61.r-3qxfft.r-n7gxbd.r-1dgieki.r-1efd50x.r-5kkj8d.r-h3s6tt.r-1wtj0ep',
       )
@@ -589,6 +581,8 @@
     button.querySelector(`#download-${classText}`).addEventListener('click', () => {
       // 根据配置决定是否自动点赞
       if (autoLike) {
+        console.log(like);
+
         if (like) {
           like.click();
         }
